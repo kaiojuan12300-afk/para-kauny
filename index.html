@@ -4,184 +4,197 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2a0a18">
-<title>Uma carta para você ❤️</title>
-<meta name="description" content="Uma carta feita com carinho.">
+<title>Um cartão para você ❤️</title>
+<meta name="description" content="Um cartão feito com carinho.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Lora:ital@0;1&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg1:#2a0a18; --bg2:#4a1230; --rose:#ff4d7d; --rose-soft:#ffb3c7;
+    --bg1:#2a0a18; --bg2:#4a1230; --wine:#8e1f4a; --rose:#c93a63; --rose-soft:#ffb3c7;
     --paper:#fff8f1; --ink:#4a2a33; --gold:#f3c77b;
     --serif:'Lora', Georgia, 'Times New Roman', serif;
     --script:'Dancing Script','Brush Script MT','Segoe Script',cursive;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html{scroll-behavior:smooth}
+  html,body{overflow-x:hidden}
   body{
     margin:0; min-height:100vh; color:#fff; font-family:var(--serif);
     background:linear-gradient(160deg,var(--bg1),var(--bg2)) fixed;
-    overflow-x:hidden;
   }
-  body.locked{overflow:hidden}
   #fx{position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:1}
 
-  /* ---------- Intro ---------- */
-  #intro{
-    position:fixed; inset:0; z-index:5; display:flex; flex-direction:column;
-    align-items:center; justify-content:center; text-align:center; padding:24px;
-    transition:opacity .9s ease, visibility .9s ease;
+  .scene{
+    position:relative; z-index:2; min-height:100vh; display:flex;
+    align-items:center; justify-content:center; padding:28px 0 40px;
   }
-  #intro.hide{opacity:0; visibility:hidden}
-  #intro h1{
-    font-family:var(--script); font-weight:600; font-size:clamp(2rem,8vw,3.4rem);
-    margin:0 0 6px; text-shadow:0 2px 18px rgba(255,77,125,.5);
-    animation:fadeUp 1.2s ease both;
-  }
-  #intro p{margin:0 0 28px; color:var(--rose-soft); font-style:italic; animation:fadeUp 1.2s .4s ease both}
 
-  .envelope{
-    position:relative; width:min(78vw,300px); aspect-ratio:3/2; margin-bottom:34px;
-    animation:float 3.2s ease-in-out infinite, fadeUp 1.2s .2s ease both;
+  /* ---------- Cartão ---------- */
+  .card{
+    position:relative; width:min(88vw,400px); perspective:1800px;
+    transition:transform 1.4s cubic-bezier(.5,.1,.2,1);
+    animation:rise 1.1s ease both;
   }
-  .env-back,.env-front{position:absolute; inset:0; border-radius:8px}
-  .env-back{background:#c93a63; box-shadow:0 14px 40px rgba(0,0,0,.45)}
-  .env-letter{
-    position:absolute; left:8%; right:8%; top:8%; height:80%; background:var(--paper);
-    border-radius:4px; transition:transform .9s .35s ease; z-index:2;
-  }
-  .env-front{
-    z-index:3; background:
-      linear-gradient(to top right,transparent 49.5%,#e0507a 50%) left/50% 100% no-repeat,
-      linear-gradient(to top left,transparent 49.5%,#d8456f 50%) right/50% 100% no-repeat,
-      linear-gradient(#d8456f,#d8456f) bottom/100% 55% no-repeat;
-    clip-path:polygon(0 0,50% 55%,100% 0,100% 100%,0 100%);
-  }
-  .env-flap{
-    position:absolute; left:0; right:0; top:0; height:55%; z-index:4;
-    background:#b8315a; transform-origin:top; transition:transform .7s ease, z-index 0s .35s;
-    clip-path:polygon(0 0,100% 0,50% 100%);
-  }
-  .env-heart{
-    position:absolute; left:50%; top:46%; z-index:5; transform:translate(-50%,-50%);
-    font-size:1.6rem; transition:opacity .3s; animation:beatC 1.4s ease-in-out infinite;
-  }
-  .envelope.open .env-flap{transform:rotateX(180deg); z-index:1}
-  .envelope.open .env-letter{transform:translateY(-55%)}
-  .envelope.open .env-heart{opacity:0}
+  @media (min-width:900px){ .card.open{transform:translateX(50%)} }
 
-  .btn{
-    font-family:var(--serif); font-size:1.05rem; color:#fff; cursor:pointer;
-    background:linear-gradient(135deg,#ff5f8f,#e0336a); border:0; border-radius:999px;
-    padding:14px 28px; min-height:48px; box-shadow:0 8px 24px rgba(224,51,106,.45);
-    transition:transform .2s ease, box-shadow .2s ease; touch-action:manipulation;
+  /* Miolo do cartão (define a altura) */
+  .inside{
+    position:relative; background:var(--paper); color:var(--ink); border-radius:4px 10px 10px 4px;
+    padding:clamp(26px,7vw,40px) clamp(20px,6vw,34px);
+    box-shadow:0 22px 60px rgba(0,0,0,.5);
+    background-image:repeating-linear-gradient(transparent,transparent 31px,rgba(201,58,99,.07) 32px);
   }
-  .btn:hover{transform:translateY(-2px) scale(1.03)}
-  .btn:active{transform:scale(.97)}
-  .btn:focus-visible{outline:3px solid var(--gold); outline-offset:3px}
-  #openBtn{animation:fadeUp 1.2s .7s ease both, glow 2.2s 2s ease-in-out infinite}
-
-  /* ---------- Carta ---------- */
-  #letter{display:none; position:relative; z-index:2; padding:56px 18px 70px}
-  #letter.show{display:block; animation:fadeIn 1.2s ease both}
-  .paper{
-    max-width:680px; margin:0 auto; background:var(--paper); color:var(--ink);
-    border-radius:14px; padding:clamp(26px,6vw,56px) clamp(20px,6vw,52px);
-    box-shadow:0 20px 60px rgba(0,0,0,.45); position:relative;
-    background-image:repeating-linear-gradient(transparent,transparent 33px,rgba(201,58,99,.07) 34px);
+  .inside::before{ /* sombra da dobra */
+    content:""; position:absolute; left:0; top:0; bottom:0; width:22px; border-radius:4px 0 0 4px;
+    background:linear-gradient(to right,rgba(74,18,48,.18),transparent);
   }
-  .paper h2{
-    font-family:var(--script); font-weight:600; color:#c93a63;
-    font-size:clamp(2rem,8vw,2.8rem); margin:0 0 26px; text-align:center;
+  .inside h2{
+    font-family:var(--script); font-weight:600; color:var(--rose);
+    font-size:clamp(1.9rem,8vw,2.4rem); margin:0 0 20px; text-align:center; line-height:1.2;
   }
-  .paper p{font-size:clamp(1.02rem,3.9vw,1.2rem); line-height:1.85; margin:0 0 28px}
-  .reveal{opacity:0; transform:translateY(24px); transition:opacity .9s ease, transform .9s ease}
-  .reveal.in{opacity:1; transform:none}
-  .divider{text-align:center; color:#e0507a; letter-spacing:.6em; margin:6px 0 26px}
-  .footer{margin-top:34px; text-align:right; border-top:1px solid rgba(201,58,99,.25); padding-top:18px}
-  .footer .date{font-size:.95rem; color:#8a5a68; margin:0 0 6px; text-align:right}
+  .inside p{font-size:clamp(.98rem,4vw,1.08rem); line-height:1.75; margin:0 0 20px; text-align:center}
+  .divider{text-align:center; color:#e0507a; letter-spacing:.6em; margin:4px 0 20px}
+  .footer{margin-top:26px; border-top:1px solid rgba(201,58,99,.25); padding-top:16px; text-align:right}
+  .footer .date{font-size:.92rem; color:#8a5a68; margin:0 0 4px; text-align:right}
   .footer .from{
-    font-family:var(--script); font-size:clamp(1.5rem,6.5vw,2.1rem); color:#c93a63;
+    font-family:var(--script); font-size:clamp(1.4rem,6vw,1.75rem); color:var(--rose);
     line-height:1.35; margin:0; text-align:right;
   }
-  .footer .heart{display:inline-block; animation:beat 1.4s ease-in-out infinite}
+  .heart{display:inline-block; animation:beat 1.4s ease-in-out infinite}
+
+  /* Poema surge aos poucos depois que o cartão abre */
+  .reveal{opacity:0; transform:translateY(14px)}
+  .card.open .reveal{
+    opacity:1; transform:none;
+    transition:opacity .9s ease, transform .9s ease;
+    transition-delay:calc(.9s + var(--i) * .3s);
+  }
+
+  /* ---------- Capa (articulada na esquerda) ---------- */
+  .cover{
+    position:absolute; inset:0; transform-origin:left center; transform-style:preserve-3d;
+    transition:transform 1.5s cubic-bezier(.5,.1,.2,1); z-index:3;
+  }
+  .card.open .cover{transform:rotateY(-178deg); pointer-events:none}
+  .face{
+    position:absolute; inset:0; border-radius:4px 10px 10px 4px;
+    backface-visibility:hidden; -webkit-backface-visibility:hidden;
+  }
+  .front{
+    border:0; padding:0; margin:0; cursor:pointer; color:#fff; font-family:var(--serif);
+    background:
+      radial-gradient(circle at 30% 20%,rgba(255,255,255,.18),transparent 45%),
+      linear-gradient(145deg,var(--wine),var(--rose) 55%,#e8648a);
+    box-shadow:0 22px 60px rgba(0,0,0,.5);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+    text-align:center; touch-action:manipulation;
+  }
+  .front::before{ /* moldura dourada */
+    content:""; position:absolute; inset:14px; border:1.5px solid rgba(243,199,123,.85);
+    border-radius:6px; pointer-events:none;
+  }
+  .front::after{
+    content:""; position:absolute; inset:20px; border:1px solid rgba(243,199,123,.4);
+    border-radius:4px; pointer-events:none;
+  }
+  .front:focus-visible{outline:3px solid var(--gold); outline-offset:4px}
+  .front .for{font-size:.9rem; letter-spacing:.35em; text-transform:uppercase; color:var(--gold)}
+  .front .who{font-family:var(--script); font-size:clamp(2.2rem,10vw,3rem); line-height:1.15; padding:0 24px}
+  .front svg{width:34%; height:auto; filter:drop-shadow(0 6px 14px rgba(0,0,0,.35)); animation:beat 1.6s ease-in-out infinite}
+  .front .tap{
+    position:absolute; bottom:34px; left:0; right:0; font-style:italic; font-size:.98rem;
+    color:#ffe3ec; animation:pulse 2s ease-in-out infinite;
+  }
+  .back{
+    transform:rotateY(180deg); background:var(--paper); color:var(--rose);
+    border-radius:10px 4px 4px 10px; box-shadow:0 22px 60px rgba(0,0,0,.4);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+    background-image:radial-gradient(circle at 50% 50%,rgba(255,179,199,.35),transparent 60%);
+  }
+  .back .script{font-family:var(--script); font-size:clamp(1.8rem,7vw,2.4rem)}
+  .back .big{font-size:3rem}
 
   /* ---------- Animações ---------- */
-  @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
-  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-  @keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
-  @keyframes beatC{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.2)}}
-  @keyframes glow{0%,100%{box-shadow:0 8px 24px rgba(224,51,106,.45)}50%{box-shadow:0 8px 34px rgba(255,95,143,.85)}}
+  @keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+  @keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+  @keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
 
   /* Só reduz se o sistema do usuário pedir explicitamente */
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; transition-delay:0s !important}
-    html{scroll-behavior:auto}
-    .reveal{opacity:1; transform:none}
   }
 </style>
 </head>
-<body class="locked">
+<body>
 
 <canvas id="fx" aria-hidden="true"></canvas>
 
-<!-- TELA INICIAL -->
-<section id="intro" aria-label="Tela inicial">
-  <h1>Tenho algo para você…</h1>
-  <p>feito com todo o carinho</p>
-  <div class="envelope" id="envelope" aria-hidden="true">
-    <div class="env-back"></div>
-    <div class="env-letter"></div>
-    <div class="env-front"></div>
-    <div class="env-flap"></div>
-    <div class="env-heart">❤️</div>
-  </div>
-  <button class="btn" id="openBtn" type="button">Abrir carta 💌</button>
-</section>
+<div class="scene">
+  <div class="card" id="card">
 
-<!-- CARTA -->
-<main id="letter">
-  <article class="paper">
-    <h2 class="reveal">Meus sentimentos por ti</h2>
+    <!-- Miolo: poema -->
+    <article class="inside" id="inside">
+      <h2 class="reveal" style="--i:0">Meus sentimentos por ti</h2>
 
-    <p class="reveal">são mais reais do que tudo que enxergo<br>
-    é mais forte do que a força<br>
-    das ondas do mar,</p>
+      <p class="reveal" style="--i:1">são mais reais do que tudo que enxergo<br>
+      é mais forte do que a força<br>
+      das ondas do mar,</p>
 
-    <p class="reveal">mais intenso do que<br>
-    O Brilho do teu olhar<br>
-    Que transformar qualquer dia comum<br>
-    No meu momento favorito,</p>
+      <p class="reveal" style="--i:2">mais intenso do que<br>
+      O Brilho do teu olhar<br>
+      Que transformar qualquer dia comum<br>
+      No meu momento favorito,</p>
 
-    <div class="divider reveal">❤ ❤ ❤</div>
+      <div class="divider reveal" style="--i:3">❤ ❤ ❤</div>
 
-    <p class="reveal">Tu es a mulher que quero amar<br>
-    eternamente,<br>
-    até ao dia da minha morte</p>
+      <p class="reveal" style="--i:4">Tu es a mulher que quero amar<br>
+      eternamente,<br>
+      até ao dia da minha morte</p>
 
-    <p class="reveal">Prometo o te fazer bem<br>
-    e procurar o melhor para nós dois.<br>
-    quero um futuro ao seu lado,<br>
-    pois em teu colo encontro<br>
-    Conforto, paz e carinho</p>
+      <p class="reveal" style="--i:5">Prometo o te fazer bem<br>
+      e procurar o melhor para nós dois.<br>
+      quero um futuro ao seu lado,<br>
+      pois em teu colo encontro<br>
+      Conforto, paz e carinho</p>
 
-    <div class="footer reveal">
-      <p class="date">6 de outubro de 2026</p>
-      <p class="from">De Kaio Juam para a Kauny Victoria <span class="heart">❤️</span></p>
+      <div class="footer reveal" style="--i:6">
+        <p class="date">6 de outubro de 2026</p>
+        <p class="from">De Kaio Juam para Nany Victoria <span class="heart">❤️</span></p>
+      </div>
+    </article>
+
+    <!-- Capa que abre -->
+    <div class="cover" id="cover">
+      <button class="face front" id="openBtn" type="button" aria-label="Abrir o cartão">
+        <span class="for">Para</span>
+        <span class="who">Nany Victoria</span>
+        <svg viewBox="0 0 100 90" aria-hidden="true">
+          <defs>
+            <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#fff0c9"/><stop offset="1" stop-color="#e9b45a"/>
+            </linearGradient>
+          </defs>
+          <path d="M50 85C10 55 0 30 0 20 0 8 10 0 22 0c12 0 22 8 28 18C56 8 66 0 78 0c12 0 22 8 22 20 0 10-10 35-50 65z" fill="url(#g)"/>
+        </svg>
+        <span class="tap">toque para abrir</span>
+      </button>
+      <div class="face back" aria-hidden="true">
+        <span class="big">💌</span>
+        <span class="script">Com todo o meu amor</span>
+      </div>
     </div>
-  </article>
-</main>
+
+  </div>
+</div>
 
 <script>
 (function(){
   'use strict';
 
-  var body = document.body;
-  var intro = document.getElementById('intro');
-  var envelope = document.getElementById('envelope');
+  var card = document.getElementById('card');
+  var cover = document.getElementById('cover');
   var openBtn = document.getElementById('openBtn');
-  var letter = document.getElementById('letter');
+  var reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
   /* ================= Corações (canvas) ================= */
   var canvas = document.getElementById('fx');
@@ -189,7 +202,7 @@
   var W = 0, H = 0, dpr = 1;
   var hearts = [];
   var MAX_TOTAL = 70;
-  var AMBIENT = 20;
+  var AMBIENT = 18;
   var running = false;
   var lastT = 0;
   var COLORS = ['#ff4d7d','#ff8fb1','#ffb3c7','#f3c77b','#ff6f9c'];
@@ -203,24 +216,24 @@
     canvas.width = Math.round(W * dpr);
     canvas.height = Math.round(H * dpr);
     ctx.setTransform(dpr,0,0,dpr,0,0);
-    AMBIENT = W < 600 ? 16 : 28;
+    AMBIENT = reduced ? 0 : (W < 600 ? 14 : 26);
   }
 
   function makeAmbient(initial){
     return {
       x: rand(0,W), y: initial ? rand(0,H) : H + 20,
       s: rand(7,16), vy: rand(14,38), vx: 0,
-      sway: rand(10,26), ph: rand(0,6.28), a: rand(.25,.6),
+      sway: rand(10,26), ph: rand(0,6.28), a: rand(.25,.55),
       c: COLORS[(Math.random()*COLORS.length)|0], burst:false, life:1
     };
   }
 
-  function burst(x,y){
-    var n = W < 600 ? 7 : 10;
+  function burst(x,y,count){
+    var n = count || (W < 600 ? 7 : 10);
     for(var i=0;i<n && hearts.length < MAX_TOTAL;i++){
-      var ang = rand(0,6.283), sp = rand(60,170);
+      var ang = rand(0,6.283), sp = rand(60,180);
       hearts.push({
-        x:x, y:y, s:rand(8,15), vx:Math.cos(ang)*sp, vy:Math.sin(ang)*sp - 60,
+        x:x, y:y, s:rand(8,16), vx:Math.cos(ang)*sp, vy:Math.sin(ang)*sp - 70,
         sway:0, ph:0, a:.9, c:COLORS[(Math.random()*COLORS.length)|0],
         burst:true, life:1
       });
@@ -253,7 +266,7 @@
       if(h.burst){
         h.vy += 220*dt;
         h.x += h.vx*dt; h.y += h.vy*dt;
-        h.life -= dt*.9;
+        h.life -= dt*.85;
         if(h.life <= 0){ hearts.splice(i,1); continue; }
         drawHeart(h.x,h.y,h.s,h.c,Math.max(0,h.life)*h.a);
       } else {
@@ -267,6 +280,7 @@
     if(ambientCount < AMBIENT && hearts.length < MAX_TOTAL && Math.random() < .08){
       hearts.push(makeAmbient(false));
     }
+    if(hearts.length === 0 && AMBIENT === 0){ running = false; return; }
     requestAnimationFrame(frame);
   }
 
@@ -275,7 +289,6 @@
     running = true; lastT = performance.now();
     requestAnimationFrame(frame);
   }
-  function stop(){ running = false; }
 
   if(ctx){
     resize();
@@ -283,7 +296,7 @@
     var rt;
     window.addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(resize,150); });
     document.addEventListener('visibilitychange', function(){
-      if(document.hidden) stop(); else start();
+      if(document.hidden){ running = false; } else { start(); }
     });
     start();
     // toque (celular) ou clique (computador)
@@ -296,43 +309,38 @@
     }, {passive:true});
   }
 
-  /* ================= Abrir carta ================= */
+  /* ================= Abrir o cartão ================= */
   var opened = false;
-  function openLetter(){
+  function openCard(){
     if(opened) return;
     opened = true;
-    openBtn.disabled = true;
-    envelope.classList.add('open');
-    var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    setTimeout(function(){
-      intro.classList.add('hide');
-      body.classList.remove('locked');
-      letter.classList.add('show');
-      window.scrollTo(0,0);
-      setupReveal();
-    }, reduced ? 50 : 1500);
-  }
-  openBtn.addEventListener('click', openLetter);
+    card.classList.add('open');
+    openBtn.setAttribute('aria-expanded','true');
+    openBtn.tabIndex = -1;
 
-  /* ================= Revelar ao rolar ================= */
-  function setupReveal(){
-    var items = document.querySelectorAll('.reveal');
-    var i;
-    if(!('IntersectionObserver' in window)){
-      for(i=0;i<items.length;i++) items[i].classList.add('in');
-      return;
-    }
-    var io = new IntersectionObserver(function(entries){
-      entries.forEach(function(en){
-        if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); }
-      });
-    }, {threshold:.15, rootMargin:'0px 0px -6% 0px'});
-    for(i=0;i<items.length;i++) io.observe(items[i]);
+    // corações saindo do cartão enquanto ele abre
+    var delays = [250, 700, 1200];
+    delays.forEach(function(d){
+      setTimeout(function(){
+        var r = card.getBoundingClientRect();
+        burst(r.left + r.width*rand(.3,.8), r.top + Math.min(r.height*.4, H*.4), 9);
+      }, reduced ? 0 : d);
+    });
+
+    // garante que o miolo fique visível no celular
+    setTimeout(function(){
+      var r = card.getBoundingClientRect();
+      if(r.top < 0 || r.bottom > H){
+        window.scrollTo({top: Math.max(0, window.pageYOffset + r.top - 16), behavior: reduced ? 'auto' : 'smooth'});
+      }
+    }, reduced ? 0 : 900);
   }
+  openBtn.addEventListener('click', openCard);
 })();
 </script>
 <noscript>
-  <style>body.locked{overflow:auto} #intro{display:none} #letter{display:block} .reveal{opacity:1;transform:none}</style>
+  <style>.cover{display:none} .reveal{opacity:1;transform:none}</style>
 </noscript>
 </body>
-</html>
+  </html>
+  
