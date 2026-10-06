@@ -1,140 +1,443 @@
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Para Kauny Victoria ❤️</title>
-  
-  <!-- Fontes Românticas do Google -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Great+Vibes&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Para o Meu Grande Amor - Uma Carta Eterna</title>
+    
+    <!-- Meta PWA para suporte e compartilhamento no Chrome -->
+    <meta name="theme-color" content="#701a31">
+    <meta name="description" content="Uma carta de amor interativa e eterna feita especialmente para você.">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    body {
-      background: linear-gradient(135deg, #ffdde1 0%, #ee9ca7 100%);
-      font-family: 'Montserrat', sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      color: #4a4a4a;
-    }
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    /* Container Principal da Carta */
-    .card-container {
-      background: rgba(255, 255, 255, 0.95);
-      max-width: 550px;
-      width: 100%;
-      border-radius: 20px;
-      padding: 35px 25px;
-      box-shadow: 0 15px 35px rgba(214, 51, 132, 0.2);
-      border: 2px solid #f8c8dc;
-      text-align: center;
-      position: relative;
-    }
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cinzel:wght@500;700&family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Great+Vibes&display=swap" rel="stylesheet">
 
-    /* Título */
-    h1 {
-      font-family: 'Great Vibes', cursive;
-      font-size: 2.8rem;
-      color: #d63384;
-      margin-bottom: 20px;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
-    }
+    <!-- HTML2Canvas para permitir baixar a imagem da carta -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-    /* Texto do Poema */
-    .poem {
-      font-family: 'Dancing Script', cursive;
-      font-size: 1.6rem;
-      line-height: 1.8;
-      color: #333;
-      white-space: pre-line;
-      margin-bottom: 30px;
-    }
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
 
-    /* Divisória com Coração */
-    .divider {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 20px 0;
-      color: #ff4081;
-      font-size: 1.2rem;
-    }
-    .divider::before, .divider::after {
-      content: "";
-      flex: 1;
-      border-bottom: 1px solid #f8c8dc;
-      margin: 0 10px;
-    }
+        body {
+            background-color: #2b0812;
+            background-image: 
+                radial-gradient(circle at 50% 30%, #591023 0%, #2b0812 70%),
+                radial-gradient(ellipse at bottom, rgba(194, 89, 117, 0.15) 0%, transparent 60%);
+            font-family: 'Playfair Display', serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
 
-    /* Rodapé com Assinatura */
-    .footer-info {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 0.95rem;
-      color: #666;
-      font-weight: 500;
-      line-height: 1.6;
-    }
-    .footer-info span {
-      color: #d63384;
-      font-weight: 600;
-    }
+        /* Canvas de fundo para chuva de corações */
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
 
-    /* Animação suave ao abrir */
-    .card-container {
-      animation: fadeIn 1.2s ease-in-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+        .font-cursive { font-family: 'Alex Brush', cursive; }
+        .font-handwriting { font-family: 'Great Vibes', cursive; }
+        .font-title { font-family: 'Dancing Script', cursive; }
+        .font-cinzel { font-family: 'Cinzel', serif; }
+
+        /* Estilo do Envelope 3D e Animações */
+        .envelope-wrapper {
+            perspective: 1200px;
+            z-index: 10;
+        }
+
+        .envelope {
+            width: 320px;
+            height: 220px;
+            background: #801832;
+            position: relative;
+            border-radius: 8px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 25px rgba(212, 175, 55, 0.2);
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        @media (min-width: 640px) {
+            .envelope {
+                width: 440px;
+                height: 290px;
+            }
+        }
+
+        .envelope:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.8), 0 0 35px rgba(212, 175, 55, 0.4);
+        }
+
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 160px solid transparent;
+            border-right: 160px solid transparent;
+            border-top: 130px solid #9e2041;
+            transform-origin: top;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), z-index 0.2s;
+            z-index: 5;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+        }
+
+        @media (min-width: 640px) {
+            .envelope-flap {
+                border-left-width: 220px;
+                border-right-width: 220px;
+                border-top-width: 170px;
+            }
+        }
+
+        .envelope-pocket {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 160px solid #6b1228;
+            border-right: 160px solid #6b1228;
+            border-bottom: 110px solid #540d1e;
+            border-top: 110px solid transparent;
+            border-radius: 0 0 8px 8px;
+            z-index: 4;
+        }
+
+        @media (min-width: 640px) {
+            .envelope-pocket {
+                border-left-width: 220px;
+                border-right-width: 220px;
+                border-bottom-width: 145px;
+                border-top-width: 145px;
+            }
+        }
+
+        /* Selo de cera com brilho pulsante */
+        .wax-seal {
+            position: absolute;
+            top: 105px;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 58px;
+            height: 58px;
+            background: radial-gradient(circle at 35% 35%, #e63956, #800c22, #470411);
+            border-radius: 50%;
+            box-shadow: 
+                0 6px 15px rgba(0, 0, 0, 0.6),
+                inset 0 2px 4px rgba(255, 255, 255, 0.4),
+                inset 0 -3px 6px rgba(0, 0, 0, 0.7);
+            border: 2px solid #33030b;
+            z-index: 6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            animation: pulseGlow 2.5s infinite ease-in-out;
+        }
+
+        @media (min-width: 640px) {
+            .wax-seal {
+                top: 140px;
+                width: 70px;
+                height: 70px;
+            }
+        }
+
+        .wax-seal:hover {
+            transform: translate(-50%, -50%) scale(1.12);
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 0 6px 15px rgba(0,0,0,0.6), 0 0 12px rgba(230, 57, 86, 0.4);
+            }
+            50% {
+                box-shadow: 0 8px 25px rgba(0,0,0,0.8), 0 0 25px rgba(230, 57, 86, 0.8);
+            }
+        }
+
+        /* Cartão Pergaminho com textura luxuosa */
+        .parchment-paper {
+            background: #fffdf8;
+            background-image: 
+                radial-gradient(#eedcc9 1px, transparent 0),
+                radial-gradient(ellipse at top left, rgba(247, 230, 210, 0.5) 0%, transparent 70%),
+                radial-gradient(ellipse at bottom right, rgba(242, 203, 212, 0.4) 0%, transparent 70%);
+            background-size: 24px 24px, 100% 100%, 100% 100%;
+            box-shadow: 
+                0 25px 60px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(212, 175, 55, 0.4) inset;
+        }
+
+        /* Moldura ornamental */
+        .ornate-inner {
+            border: 2px solid #b8860b;
+            position: relative;
+        }
+
+        .ornate-inner::before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            right: 4px;
+            bottom: 4px;
+            border: 1px solid #d4af37;
+            pointer-events: none;
+        }
+
+        .corner {
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border-color: #8b263e;
+        }
+        .c-tl { top: -2px; left: -2px; border-top: 3px solid #8b263e; border-left: 3px solid #8b263e; }
+        .c-tr { top: -2px; right: -2px; border-top: 3px solid #8b263e; border-right: 3px solid #8b263e; }
+        .c-bl { bottom: -2px; left: -2px; border-bottom: 3px solid #8b263e; border-left: 3px solid #8b263e; }
+        .c-br { bottom: -2px; right: -2px; border-bottom: 3px solid #8b263e; border-right: 3px solid #8b263e; }
+
+        /* Animação de revelação de texto suave */
+        .verse-line {
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 1.2s ease-out, transform 1.2s ease-out;
+        }
+
+        .verse-line.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Efeito de envelope aberto */
+        .envelope.open .envelope-flap {
+            transform: rotateX(180deg);
+            z-index: 2;
+        }
+
+        .envelope.open .wax-seal {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        /* Ocultar elementos ao imprimir */
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; }
+            #particleCanvas { display: none !important; }
+        }
+    </style>
 </head>
-<body>
+<body class="flex flex-col items-center justify-between min-h-screen p-3 sm:p-6 text-gray-800 relative select-none">
 
-  <div class="card-container">
-    <h1>Uma declaração para ti ❤️</h1>
+    <!-- Canvas Interativo de Chuva de Corações -->
+    <canvas id="particleCanvas"></canvas>
 
-    <div class="divider">💖</div>
+    <!-- Barra de Ferramentas Superior Fixa (Música & Dicas) -->
+    <header class="no-print w-full max-w-3xl z-30 flex items-center justify-between pt-2 px-2">
+        <div class="flex items-center gap-2">
+            <button id="musicBtn" onclick="toggleAudio()" class="flex items-center gap-2 bg-rose-950/80 hover:bg-rose-900 text-amber-200 border border-amber-500/40 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium backdrop-blur-md transition-all shadow-lg active:scale-95">
+                <span id="musicIcon">🎵</span>
+                <span id="musicText">Música Romântica</span>
+            </button>
+        </div>
 
-    <div class="poem">
-      Meus sentimentos por ti 
-      são mais reais do que tudo que enxergo
-      é mais forte do que a força
-      das ondas do mar,
+        <div class="flex items-center gap-2">
+            <button id="installPwaBtn" onclick="installPWA()" class="hidden flex items-center gap-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-400/50 px-3 py-1.5 rounded-full text-xs font-medium backdrop-blur-md transition-all">
+                ✨ <span>Instalar App</span>
+            </button>
+        </div>
+    </header>
 
-      mais intenso do que
-      O Brilho do teu olhar
-      Que transformar qualquer dia comum 
-      No meu momento favorito,
+    <!-- Conteúdo Central: Envelope Interativo ou Carta Aberta -->
+    <main class="w-full max-w-2xl my-auto z-20 flex flex-col items-center justify-center py-6">
 
-      Tu es a mulher que quero amar
-      eternamente,
-      até ao dia da minha morte
+        <!-- ETAPA 1: Envelope Romântico Fechado -->
+        <div id="envelopeStage" class="flex flex-col items-center justify-center transition-all duration-700">
+            
+            <div class="envelope-wrapper mb-8">
+                <div id="envelope" class="envelope flex items-center justify-center" onclick="openLetter()">
+                    
+                    <!-- Aba Superior do Envelope -->
+                    <div class="envelope-flap"></div>
 
-      Prometo o te fazer bem
-      e procurar o melhor para nós dois.
-      quero um futuro ao seu lado,
-      pois em teu colo encontro 
-      Conforto, paz e carinho
-    </div>
+                    <!-- Selo de Cera Interativo -->
+                    <div class="wax-seal" title="Clique para abrir sua carta">
+                        <span class="text-amber-100 text-2xl font-bold drop-shadow">♥</span>
+                    </div>
 
-    <div class="divider">💖</div>
+                    <!-- Bolso Inferior do Envelope -->
+                    <div class="envelope-pocket"></div>
 
-    <div class="footer-info">
-      <p>Feita por <span>Kaio Juan</span> para: <span>Kauny Victoria</span></p>
-      <p>📅 06 de Outubro de 2026</p>
-    </div>
-  </div>
+                    <!-- Cartão pré-visível dentro do envelope -->
+                    <div class="absolute w-[88%] h-[80%] bg-amber-50 rounded shadow-md bottom-2 z-3 flex items-center justify-center text-center p-4 opacity-90 border border-amber-200/50">
+                        <p class="font-title text-rose-900 text-lg sm:text-2xl font-semibold italic">
+                            Uma declaração especial para você...
+                        </p>
+                    </div>
 
-</body>
-</html>
+                </div>
+            </div>
+
+            <!-- Instrução para Abertura -->
+            <div class="text-center animate-bounce">
+                <p class="text-amber-200/90 font-cinzel text-xs sm:text-sm tracking-widest uppercase mb-1">
+                    Toque no selo de coração para abrir
+                </p>
+                <div class="text-rose-400 text-lg">👇</div>
+            </div>
+
+        </div>
+
+        <!-- ETAPA 2: Cartinha Desdobrada e Iluminada (Oculta por padrão) -->
+        <div id="letterStage" class="hidden w-full transition-all duration-1000 transform opacity-0 scale-95">
+            
+            <!-- Cartão Pergaminho com o Poema -->
+            <div id="captureArea" class="parchment-paper rounded-2xl p-5 sm:p-10 md:p-12 relative border border-amber-300/60 shadow-2xl">
+                
+                <!-- Cabeçalho do Pergaminho com Selo Postal -->
+                <div class="flex justify-between items-start mb-6 border-b border-amber-900/15 pb-4 sm:pb-6">
+                    <div class="text-left">
+                        <div class="inline-block border border-dashed border-rose-900/40 px-3 py-1 rounded bg-rose-50/60">
+                            <span class="block font-cinzel text-[9px] sm:text-[10px] tracking-widest text-rose-950 font-bold uppercase">Carta de Amor Eterna</span>
+                            <span class="block font-serif text-[10px] sm:text-[11px] italic text-rose-800">Entregue com Todo Carinho</span>
+                        </div>
+                    </div>
+
+                    <!-- Mini Selo de Cera Decorativo -->
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-rose-700 to-rose-950 flex items-center justify-center text-amber-200 text-lg sm:text-xl font-bold shadow-md border border-amber-300/40">
+                        ♥
+                    </div>
+                </div>
+
+                <!-- Moldura Ornamental com Cantoneiras -->
+                <div class="ornate-inner p-5 sm:p-8 md:p-10 rounded-lg bg-white/50 relative">
+                    
+                    <div class="corner c-tl"></div>
+                    <div class="corner c-tr"></div>
+                    <div class="corner c-bl"></div>
+                    <div class="corner c-br"></div>
+
+                    <!-- Título Elegante -->
+                    <div class="text-center mb-8">
+                        <p class="font-cinzel text-[10px] sm:text-xs tracking-widest text-amber-900/70 uppercase">Escrito com a Alma</p>
+                        <h1 class="font-title text-3xl sm:text-5xl text-rose-900 font-bold mt-1">Meus Sentimentοs Por Ti</h1>
+                        <div class="flex items-center justify-center gap-2 mt-2">
+                            <div class="h-[1px] w-12 bg-amber-800/30"></div>
+                            <span class="text-rose-700 text-xs sm:text-sm">❦</span>
+                            <div class="h-[1px] w-12 bg-amber-800/30"></div>
+                        </div>
+                    </div>
+
+                    <!-- Corpo do Poema Verso a Verso -->
+                    <div class="space-y-6 sm:space-y-8 text-center text-lg sm:text-2xl text-rose-950 font-medium leading-relaxed">
+                        
+                        <!-- Estrofe 1 -->
+                        <div class="verse-line space-y-1">
+                            <p class="italic">Meus sentimentos por ti</p>
+                            <p class="italic">são mais reais do que tudo que enxergo</p>
+                            <p class="italic">é mais forte do que a força</p>
+                            <p class="italic">das ondas do mar,</p>
+                        </div>
+
+                        <div class="text-amber-800/30 text-xs font-serif tracking-widest">✦ ✦ ✦</div>
+
+                        <!-- Estrofe 2 -->
+                        <div class="verse-line space-y-1">
+                            <p class="italic">mais intenso do que</p>
+                            <p class="italic font-semibold text-rose-900">O Brilho do teu olhar</p>
+                            <p class="italic">Que transformar qualquer dia comum</p>
+                            <p class="italic">No meu momento favorito,</p>
+                        </div>
+
+                        <div class="text-amber-800/30 text-xs font-serif tracking-widest">✦ ✦ ✦</div>
+
+                        <!-- Estrofe 3 -->
+                        <div class="verse-line space-y-1">
+                            <p class="italic">Tu es a mulher que quero amar</p>
+                            <p class="font-serif not-italic uppercase tracking-widest text-base sm:text-lg font-bold text-rose-900 my-1">Eternamente,</p>
+                            <p class="italic">até ao dia da minha morte</p>
+                        </div>
+
+                        <div class="text-amber-800/30 text-xs font-serif tracking-widest">✦ ✦ ✦</div>
+
+                        <!-- Estrofe 4 -->
+                        <div class="verse-line space-y-1">
+                            <p class="italic">Prometo o te fazer bem</p>
+                            <p class="italic">e procurar o melhor para nós dois.</p>
+                            <p class="italic">quero um futuro ao seu lado,</p>
+                            <p class="italic">pois em teu colo encontro</p>
+                            <p class="italic font-bold text-rose-900 mt-1">Conforto, paz e carinho.</p>
+                        </div>
+
+                    </div>
+
+                    <!-- Assinatura Final -->
+                    <div class="verse-line mt-10 pt-6 border-t border-amber-900/10 text-center">
+                        <p class="font-cinzel text-xs text-amber-900/70 uppercase tracking-widest">Para sempre ao seu lado</p>
+                        <p class="font-handwriting text-4xl sm:text-5xl text-rose-900 mt-2">Com todo o meu amor</p>
+                        <p class="text-rose-700 text-lg mt-1">♥</p>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Botões de Ação para Postar / Compartilhar / Salvar no Chrome -->
+            <div class="no-print flex flex-wrap items-center justify-center gap-3 sm:gap-4 mt-8">
+                
+                <button onclick="downloadAsImage()" class="flex items-center gap-2 bg-gradient-to-r from-rose-800 to-rose-900 hover:from-rose-900 hover:to-rose-950 text-amber-100 font-medium px-5 py-2.5 rounded-full text-xs sm:text-sm shadow-xl transition-all border border-amber-400/30 active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    <span>Baixar Imagem Cartão</span>
+                </button>
+
+                <button onclick="copyPoemText()" class="flex items-center gap-2 bg-white/90 hover:bg-white text-rose-950 font-medium px-5 py-2.5 rounded-full text-xs sm:text-sm shadow-lg border border-rose-300 transition-all active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-rose-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+                    </svg>
+                    <span>Copiar Texto</span>
+                </button>
+
+                <button onclick="shareNative()" class="flex items-center gap-2 bg-rose-950/80 hover:bg-rose-900 text-amber-200 font-medium px-5 py-2.5 rounded-full text-xs sm:text-sm shadow-lg border border-amber-500/30 transition-all active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                    </svg>
+                    <span>Postar / Compartilhar</span>
+                </button>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Rodapé Discreto -->
+    <footer class="no-print w-full text-center py-3 text-rose-300/60 text-xs font-serif z-20">
+        Feito com todo o amor do mundo ♥
+    </footer>
+
+    <!-- Toast Notification Romântico -->
+    <div id="toast" class="no-print fixed bottom
+
